@@ -1,0 +1,52 @@
+{% extends '../base.html' %}
+
+
+{% block content %}
+    <div class="container">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        <div class="col">
+          <div class="card shadow-sm">
+            <img class="img-fluid" alt="Fur image" src="{{product.image.url}}">
+            <div class="card-body">
+                  <a class="text-dark text-decoration-none" href="">{{product.title}}</a>
+
+            <div>
+                <small class="text-muted">{{product.price}} P</small>
+                            <div class="col-md-5">
+              <label for="select" class="form-label">Quantity</label>
+              <select id="select" class="form-select" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+
+              </div>
+               <button id="add-button" value="{{product.id}}" class="btn btn-primary btn-lg" type="button">BUY NOW</button>
+            </div>
+            </div>
+            </div>
+          </div>
+        </div>
+
+<script>
+
+  $(document).on('click', '#add-button', function (e) {
+    e.preventDefault();
+    $.ajax({
+        type: 'POST',
+        url: '{% url "cart:cart_add" %}',
+        data: {
+          productid: $('#add-button').val(),
+          productqty: $('#select option:selected').val(),
+          csrfmiddlewaretoken: "{{csrf_token}}",
+          action: 'post'
+        },
+        success: function (json) {
+        document.getElementById('items_overall').text = json.qty
+        },
+        error: function (xhr, errmsg, err) {}
+    });
+  })
+</script>
+{% endblock %}

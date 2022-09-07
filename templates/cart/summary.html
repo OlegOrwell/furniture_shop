@@ -1,0 +1,100 @@
+{% extends '../store/base.html' %}
+
+{% load static %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+{% for item in cart %}
+
+      <div class="col" id="d-{{item.product.id}}">
+        <div class="card mb-4 rounded-3 shadow-sm">
+          <div class="card-header py-3">
+            <h4 class="my-0 fw-normal">{{item.product}}</h4>
+          </div>
+          <div class="card-body">
+            <h1 id="t-{{item.product.id}}" class="card-title pricing-card-title" data-price="{{item.total_price}}" data-index="{{item.product.id}}">{{item.total_price}} P</h1>
+            <ul class="list-unstyled mt-3 mb-4">
+              <li id="q-{{item.product.id}}">{{item.quantity}} шт.</li>
+              </ul>
+              <label for="select" class="form-label">Quantity</label>
+              <select id="select" class="form-select qty_cls"  data-index='{{item.product.id}}'>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" >3</option>
+                <option value="4">4</option>
+                <option value="{{item.quantity}}" selected>{{item.quantity}}</option>
+              </select>
+            <button id="change-but" data-index="{{item.product.id}}" data-price="{{item.product.price}}" value="{{item.product.id}}" type="button" class="w-30 btn btn-lg btn-outline-primary">Изменить</button>
+            <button id="del-but" data-index="{{item.product.id}}" data-price="{{item.product.price}}" value="{{item.product.id}}" type="button" class="w-30 btn btn-lg btn-outline-primary delete-button">Удалить</button>
+          </div>
+        </div>
+      </div>
+{% endfor %}
+    <container>
+<h3 class="">Итого</h3>
+<h4 id="total-price" class="">{{cart.get_total}}</h4>
+    </container>
+
+<script>
+  $(document).on('click', '#del-but', function (e) {
+    e.preventDefault();
+    var id_delete = $(this).val();
+    var ind = $(this).data('index');
+    var elem = document.getElementById("d-"+ind)
+    $.ajax({
+        type: 'POST',
+        url: '{% url "cart:cart_delete" %}',
+        data: {
+          productid: $(this).data('index'),
+          csrfmiddlewaretoken: "{{csrf_token}}",
+          action: 'delete'
+        },
+        success: function (json) {
+        document.getElementById('items_overall').text = json.qty;
+        elem.remove()
+
+        const elems = document.querySelectorAll('.pricing-card-title');
+        let sum = 0;
+        for (let i=0; i<elems.length; i++)
+        {sum += Number(elems[i].dataset.price);};
+
+        document.getElementById('total-price').innerHTML = sum;
+        },
+        error: function (xhr, errmsg, err) {}
+    });
+  })
+    $(document).on('click', '#change-but', function (e) {
+    e.preventDefault();
+    var id_update = $(this).val();
+    var price_update = $(this).data('price');
+    var ind = $(this).data('index');
+    var qty_update = $('.qty_cls[data-index="'+ id_update +'"] option:selected').val();
+    var new_price = Number(price_update) * Number(qty_update);
+    var product_price = document.getElementById("t-"+ind)
+    var qty_place = document.getElementById("q-"+ind).innerHTML
+    $.ajax({
+        type: 'POST',
+        url: '{% url "cart:cart_add" %}',
+        data: {
+          productid: $(this).data('index'),
+          productqty: $('.qty_cls[data-index="'+ id_update +'"] option:selected').val(),
+          csrfmiddlewaretoken: "{{csrf_token}}",
+          action: 'post'
+        },
+        success: function (json) {
+        document.getElementById('items_overall').text = json.qty;
+        const overall_price = Number(json.price_total);
+        product_price.innerText = new_price;
+        document.getElementById("q-"+ind).innerHTML = qty_update+" шт.";
+
+        document.getElementById('total-price').innerHTML = overall_price;
+        },
+        error: function (xhr, errmsg, err) {}
+    });
+  })
+</script>
+
+{% endblock %}
+

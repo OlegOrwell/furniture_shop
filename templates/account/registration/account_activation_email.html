@@ -1,0 +1,10 @@
+{% autoescape off %}
+Hi {{user.user_name}}
+
+Your account is created.
+
+To finish the registration process click the link below.
+
+https://{{ domain }} {% url 'account:activate' uidb64=uid token=token %}
+
+{% endautoescape %}

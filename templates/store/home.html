@@ -1,0 +1,60 @@
+{% extends './base.html' %}
+{% load static %}
+
+{% block title %}Real mebel{% endblock %}
+
+{% block content %}
+<section class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <h1 class="fw-light">Эксклюзивная коллекция</h1>
+        <p class="lead text-muted">осенняя распродажа</p>
+        <p>
+          <a href="{% url 'account:register' %}" class="btn btn-primary my-2">JOIN US</a>
+        </p>
+      </div>
+    </div>
+</section>
+
+<div class="album py-5 bg-light">
+
+    <div class="container">
+<div class="pb-3 h3">All furniture </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+          {% for product in products %}
+        <div class="col" id="el-{product.id}">
+          <div class="card shadow-sm">
+            <img class="img-fluid" alt="Fur image" src="{{product.image.url}}" id="im-{product.id}" data-index="im-{product.id}">
+            <div class="card-body">
+
+                  <a class="text-dark text-decoration-none" href="{{product.get_absolute_url}}">{{product.title}}</a>
+
+                <small class="text-muted">{{product.price}} P</small>
+
+            </div>
+          </div>
+        </div>
+          {% endfor %}
+      </div>
+
+<script>
+
+    let img = document.querySelector('img');
+    let start = img.src;
+    let hover = img.getAttribute('data-hover');
+
+    img.onmouseover = () => { img.src = hover; }
+    img.onmouseout = () => { img.src = start; }
+    function rollover(my_image)
+		{
+			my_image.src = 'images/costAnalysisBtn2.png';
+		}
+function mouseaway(my_image)
+		{
+			my_image.src = "images/costAnalysisBtn1.png";
+		}
+onmouseover="rollover(this)" onmouseout="mouseaway(this)";
+
+
+</script>
+{% endblock %}
